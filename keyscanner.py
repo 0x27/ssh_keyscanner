@@ -146,7 +146,7 @@ def main():
     parser.add_argument("-f", help="SSH PublicKey file")
     parser.add_argument("-i", help="Target IP/Host")
     parser.add_argument("-p", help="Target Port (default is 22)", default=22)
-    parser.add_argument("-t", help="Use Tor for the SSH key grab (for hidden services, etc!)")
+    parser.add_argument("-t", action="store_true", help="Use Tor for the SSH key grab (for hidden services, etc!)")
     args = parser.parse_args()
     if args.f:
         local_query(keyfile=args.f)
