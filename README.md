@@ -4,6 +4,8 @@ This tool has two modes, currently. It can search given a public-key you provide
 
 It currently is incomplete (see the todo list), but works for those uses.
 
+It now has support for doing the keygrab over tor, and works on hidden services. This is useful for finding, uh, shittily configured ones.
+
 ## Howto:
 The tool has 4 args, outlined below.   
 * "-i", for target host. You must set either this, or -f. 
