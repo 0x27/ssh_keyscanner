@@ -35,6 +35,9 @@ Note: I only bothered testing on python2.
 Send yer cryptologically generated beer tokens to fuel further opensource software:  
 [coinbase, for convenience][coinbase], or the following bitcoin address: `13rZ67tmhi7M3nQ3w87uoNSHUUFmYx7f4V`
 
+## Mandatory asciicast until I finish it and make a proper video  
+[![asciicast](https://asciinema.org/a/0hi7u7c3ju6q2vc4xzt4v7saf.png)](https://asciinema.org/a/0hi7u7c3ju6q2vc4xzt4v7saf)
+
 ## Bug Reports and Feature Requests
 Please submit all bug reports and feature requests to the [Github Issue Tracker][tracker]. Give me stacktraces by enabling debug mode.
 
