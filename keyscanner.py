@@ -14,6 +14,7 @@ import hashlib  # for hashing shit
 import socket   # so we can connect to shit
 import shodan   # shodan all the shit
 import base64   # base64 encryptin' shit liekpro
+import socks    # for tor support
 import sys      # exits and shit
 # globals.
 SHODAN_API_KEY = "LOL NO GTFO" # change this
@@ -56,11 +57,16 @@ def pubkey_to_fingerprint(pubkey): # done
         msg_debug(e)
         msg_fail("ssh fingerprint generation failed.")
     
-def grab_pubkey(host, port): # done
+def grab_pubkey(host, port, tor=False): # done
     # connect to a remote host/port and get a ssh public key
     try:
         msg_debug("Creating socket()")
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if tor == False:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        else:
+            msg_debug("Using Tor, so using a socks socket thing")
+            socks.setdefaultproxy(socks.PROXY_TYPE_SOCKS5, "127.0.0.1", 9050, True)
+            s = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
     except Exception, e:
         msg_debug(e)
         msg_fail("Failed to create socket!")  
@@ -89,8 +95,8 @@ def grab_pubkey(host, port): # done
     pubkey = "%s %s" %(pubkey_type, pubkey_data)
     return pubkey
     
-def remote_query(host, port): # done
-    pubkey = grab_pubkey(host, port)
+def remote_query(host, port, tor=False): # done
+    pubkey = grab_pubkey(host, port, tor)
     fingerprint = pubkey_to_fingerprint(pubkey)
     msg_info("SSH Fingerprint: %s" %(fingerprint))
     do_shodan(fingerprint)
@@ -140,11 +146,15 @@ def main():
     parser.add_argument("-f", help="SSH PublicKey file")
     parser.add_argument("-i", help="Target IP/Host")
     parser.add_argument("-p", help="Target Port (default is 22)", default=22)
+    parser.add_argument("-t", help="Use Tor for the SSH key grab (for hidden services, etc!)")
     args = parser.parse_args()
     if args.f:
         local_query(keyfile=args.f)
     elif args.i:
-        remote_query(host=args.i, port=args.p)
+        if args.t:
+            remote_query(host=args.i, port=args.p, tor=True)
+        else:
+            remote_query(host=args.i, port=args.p)
     elif not args.f or args.i:
         parser.error("give me some arguments or get the fuck out")
     
