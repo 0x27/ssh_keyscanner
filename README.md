@@ -5,10 +5,11 @@ This tool has two modes, currently. It can search given a public-key you provide
 It currently is incomplete (see the todo list), but works for those uses.
 
 ## Howto:
-The tool has 3 args, outlined below.   
+The tool has 4 args, outlined below.   
 * "-i", for target host. You must set either this, or -f. 
 * "-f", for SSH Public Key file. You must set either this, or -i.
 * "-p", for target port. This defaults to 22.
+* "-t", uses Tor for the SSH key grabbing. Good for Hidden Services ;)
 
 You should also edit the script to put in your own [Shodan](https://www.shodan.io/) API key, as you can't have mine. You can probably just borrow someone elses, [as people leave them all over github](https://github.com/0x27/shodan_key_checker).
 
@@ -17,13 +18,13 @@ This tool depends on the following:
 [Paramiko](http://www.paramiko.org/)  
 [sshpubkeys](https://github.com/ojarva/python-sshpubkeys)  
 [shodan](https://github.com/achillean/shodan-python)  
+[PySocks](https://github.com/Anorov/PySocks)  
 You can get them with ```pip install -r requirements.txt``` or whatever. The rest should be stdlib.
 
 Note: I only bothered testing on python2.
 
 ## Todo  
 * Private-Key support so I can also use privkeys as well as pubkeys.
-* Tor support, because science.
 * Directory of keyfile support.
 * List of hosts support.
 * idk, make a git issue with your ideas...
@@ -40,6 +41,9 @@ Send yer cryptologically generated beer tokens to fuel further opensource softwa
 
 ## Bug Reports and Feature Requests
 Please submit all bug reports and feature requests to the [Github Issue Tracker][tracker]. Give me stacktraces by enabling debug mode.
+
+## Changelog  
+18-01-2015 (01:26): - Added Tor support on a whim. Completely untested, will get tested in the morning when I wake up.
 
 [coinbase]: https://www.coinbase.com/infodox/
 [Licence]: http://www.wtfpl.net/txt/copying/
