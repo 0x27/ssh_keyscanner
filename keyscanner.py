@@ -26,7 +26,7 @@ CYAN = "\x1b[1;36m"
 BLUE = "\x1b[1;34m"
 YELLOW = "\x1b[1;33m"
 # for debugging. True or False.
-DEBUG = False # if somethings going wierd just enable debug
+DEBUG = True # if somethings going wierd just enable debug
 
 def msg_info(msg): # informational.
 	print "%s{i} %s%s" %(CYAN, msg, CLEAR)
@@ -98,14 +98,21 @@ def grab_pubkey(host, port, tor=False): # done
     
 def remote_query(host, port, tor=False): # done
     pubkey = grab_pubkey(host, port, tor)
-    fingerprint = pubkey_to_fingerprint(pubkey)
-    msg_info("SSH Fingerprint: %s" %(fingerprint))
-    do_shodan(fingerprint)
+    if pubkey != False:
+        fingerprint = pubkey_to_fingerprint(pubkey)
+        msg_info("SSH Fingerprint: %s" %(fingerprint))
+        if fingerprint != None:
+            do_shodan(fingerprint)
+        else:
+            msg_status("Fingerprint was none, skipping shodan...")
+    else:
+        msg_status("Pubkey grab failed, right? Lets move on...")
 
 def list_query(hosts, tor=False):
     hostlist = open(hosts, "r").readlines()
     for target in hostlist:
-        if ":" in host:
+        target = target.strip()
+        if ":" in target:
             host = target.split(":")[0]
             port = target.split(":")[1]
             remote_query(host=host, port=port, tor=tor)
@@ -145,9 +152,12 @@ def do_shodan(fingerprint):
         return msg_fail("Shodan query failure :(")
     try:
         msg_success("Hits Found: %s" %(results['total']))
-        msg_info("Printing IP's now...")
-        for result in results['matches']:
-            print result['ip_str']
+        if results['total'] > 0:
+            msg_info("Printing IP's now...")
+            for result in results['matches']:
+                print result['ip_str']
+        else:
+            pass
     except Exception, e:
         msg_debug(e)
         return msg_fail("Some fucking shit broke.")
