@@ -37,8 +37,9 @@ def msg_status(msg): # statuses and shit
 def msg_success(msg): # for the wins
     print "%s{+} %s%s" %(GREEN, msg, CLEAR)
 
-def msg_fail(msg): # when shit breaks catastrophically, we abort.
-	sys.exit("%s{!} %s%s" %(RED, msg, CLEAR))
+def msg_fail(msg): # when shit breaks catastrophically, we return False
+	print "%s{!} %s%s" %(RED, msg, CLEAR)
+    return False
 
 def msg_debug(msg): # for debug messages
     if DEBUG == True:
@@ -69,26 +70,26 @@ def grab_pubkey(host, port, tor=False): # done
             s = socks.socksocket(socket.AF_INET, socket.SOCK_STREAM)
     except Exception, e:
         msg_debug(e)
-        msg_fail("Failed to create socket!")  
+        return msg_fail("Failed to create socket!")  
     try:
         msg_status("Connecting to %s:%s" %(host, port))
         s.connect((host, int(port)))
     except Exception, e:
         msg_debug(e)
-        msg_fail("Failed to connect!")
+        return msg_fail("Failed to connect!")
     try:
         msg_debug("Creating SSH client")
         trans = paramiko.Transport(s)
         trans.start_client()
     except Exception, e:
         msg_debug(e)
-        msg_fail("Failed to start SSH client")
+        return msg_fail("Failed to start SSH client")
     try:
         msg_status("Connected... Grabbing SSH key now")
         binary_key = trans.get_remote_server_key()
     except Exception, e:
         msg_debug(e)
-        msg_fail("Grabbing SSH key failure!")
+        return msg_fail("Grabbing SSH key failure!")
     # the next 3 lines are bad and I should feel bad. fuck ssh.
     pubkey_data = base64.encodestring(binary_key.__str__()).replace('\n', '')
     pubkey_type = binary_key.get_name()
@@ -101,6 +102,9 @@ def remote_query(host, port, tor=False): # done
     msg_info("SSH Fingerprint: %s" %(fingerprint))
     do_shodan(fingerprint)
 
+def list_query(hosts, tor=False):
+    pass
+
 def local_query(keyfile): # done
     msg_status("Running query using %s" %(keyfile))
     try:
@@ -108,12 +112,12 @@ def local_query(keyfile): # done
         f = open(keyfile, "rb")
     except Exception, e:
         msg_debug(e)
-        msg_fail("File open failed.")
+        return msg_fail("File open failed.")
     try:
         pubkey = f.read()
     except Exception, e:
         msg_debug(e)
-        msg_fail("File read failed.")
+        return msg_fail("File read failed.")
     fingerprint = pubkey_to_fingerprint(pubkey)
     msg_info("SSH Fingerprint: %s" %(fingerprint))
     do_shodan(fingerprint)
@@ -124,13 +128,13 @@ def do_shodan(fingerprint):
         api = shodan.Shodan(SHODAN_API_KEY)
     except Exception, e:
         msg_debug(e)
-        msg_fail("Shodan API (Key?) failed.")
+        return msg_fail("Shodan API (Key?) failed.")
     try:
         msg_status("Querying Shodan now...")
         results = api.search(fingerprint)
     except Exception, e:
         msg_debug(e)
-        msg_fail("Shodan query failure :(")
+        return msg_fail("Shodan query failure :(")
     try:
         msg_success("Hits Found: %s" %(results['total']))
         msg_info("Printing IP's now...")
@@ -138,7 +142,7 @@ def do_shodan(fingerprint):
             print result['ip_str']
     except Exception, e:
         msg_debug(e)
-        msg_fail("Some fucking shit broke.")
+        return msg_fail("Some fucking shit broke.")
 
 def main():
     # args: -f (file), -i (ip), -p (port)
@@ -155,7 +159,12 @@ def main():
             remote_query(host=args.i, port=args.p, tor=True)
         else:
             remote_query(host=args.i, port=args.p)
-    elif not args.f or args.i:
+    elif args.l:
+        if args.t:
+            list_query(hosts=args.l, tor=True)
+        else:
+            list_query(hosts=args.l)
+    elif not args.f or args.i or args.l:
         parser.error("give me some arguments or get the fuck out")
     
 if __name__ == "__main__":

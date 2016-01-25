@@ -8,8 +8,10 @@ It now has support for doing the keygrab over tor, and works on hidden services.
 
 ## Howto:
 The tool has 4 args, outlined below.   
-* "-i", for target host. You must set either this, or -f. 
-* "-f", for SSH Public Key file. You must set either this, or -i.
+* "-i", for target host. You must set either this, -l, or -f. 
+* "-f", for SSH Public Key file. You must set either this, -f, or -i.  
+* "-l", for lists of target hosts. Alternative to -i or -f.  
+* "-d", for directories of keys. Not yet implemented!
 * "-p", for target port. This defaults to 22.
 * "-t", uses Tor for the SSH key grabbing. Good for Hidden Services ;)
 
