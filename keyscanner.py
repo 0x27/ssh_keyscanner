@@ -38,7 +38,7 @@ def msg_success(msg): # for the wins
     print "%s{+} %s%s" %(GREEN, msg, CLEAR)
 
 def msg_fail(msg): # when shit breaks catastrophically, we return False
-	print "%s{!} %s%s" %(RED, msg, CLEAR)
+    print "%s{!} %s%s" %(RED, msg, CLEAR)
     return False
 
 def msg_debug(msg): # for debug messages
@@ -103,7 +103,15 @@ def remote_query(host, port, tor=False): # done
     do_shodan(fingerprint)
 
 def list_query(hosts, tor=False):
-    pass
+    hostlist = open(hosts, "r").readlines()
+    for target in hostlist:
+        if ":" in host:
+            host = target.split(":")[0]
+            port = target.split(":")[1]
+            remote_query(host=host, port=port, tor=tor)
+        else:
+            remote_query(host=target, port=22, tor=tor)
+            
 
 def local_query(keyfile): # done
     msg_status("Running query using %s" %(keyfile))
@@ -149,6 +157,7 @@ def main():
     parser = argparse.ArgumentParser("ssh public key scanner")
     parser.add_argument("-f", help="SSH PublicKey file")
     parser.add_argument("-i", help="Target IP/Host")
+    parser.add_argument("-l", help="Target IP/Host list (one per line, in host:port format or just host format)")
     parser.add_argument("-p", help="Target Port (default is 22)", default=22)
     parser.add_argument("-t", action="store_true", help="Use Tor for the SSH key grab (for hidden services, etc!)")
     args = parser.parse_args()
