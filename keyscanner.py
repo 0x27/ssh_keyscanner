@@ -17,7 +17,7 @@ import base64   # base64 encryptin' shit liekpro
 import socks    # for tor support
 import sys      # exits and shit
 # globals.
-SHODAN_API_KEY = "LOL NO GTFO" # change this
+SHODAN_API_KEY = "" # change this
 # colours. don't change these
 RED = "\x1b[1;31m"
 GREEN = "\x1b[1;32m"
@@ -166,6 +166,7 @@ def main():
     # args: -f (file), -i (ip), -p (port)
     parser = argparse.ArgumentParser("ssh public key scanner")
     parser.add_argument("-f", help="SSH PublicKey file")
+    parser.add_argument("-F", help="SSH fingerprint")
     parser.add_argument("-i", help="Target IP/Host")
     parser.add_argument("-l", help="Target IP/Host list (one per line, in host:port format or just host format)")
     parser.add_argument("-p", help="Target Port (default is 22)", default=22)
@@ -173,6 +174,10 @@ def main():
     args = parser.parse_args()
     if args.f:
         local_query(keyfile=args.f)
+    elif args.F:
+        fingerprint=args.F
+        msg_info("SSH Fingerprint: %s" %(fingerprint))
+        do_shodan(fingerprint)
     elif args.i:
         if args.t:
             remote_query(host=args.i, port=args.p, tor=True)
